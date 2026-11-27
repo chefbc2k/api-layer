@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T04:25:30.461Z",
+  "generatedAt": "2026-11-27T11:13:34.092Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 7724,
-    "includedArtifacts": 38,
+    "artifactTransactionHashes": 7732,
+    "includedArtifacts": 39,
     "skippedArtifacts": 0,
-    "indexedReceipts": 7724,
-    "provenWriteMethods": 190,
+    "indexedReceipts": 7732,
+    "provenWriteMethods": 191,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 70,
-    "rawEvents": 11512,
-    "projectionRows": 7237
+    "remainingWriteMethods": 69,
+    "rawEvents": 11533,
+    "projectionRows": 7258
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -176168,7 +176168,7 @@
       "actors": [
         "local-fork-fixture"
       ],
-      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed for the recorded transaction or internal diamond invocation",
       "evidence": [
         {
           "localFork": true,
@@ -177372,6 +177372,84 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.cancel",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "cancel(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0x68bb3920",
+          "transactionMethodKey": "TimelockFacet.cancel",
+          "transactionMethodSignature": "cancel(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0x68bb3920",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0x68bb3920",
+            "callPath": []
+          },
+          "txHash": "0x678b662dd4339f07715a9ec9c1ec43163595f0d630fecab0dd2caf056c7282d4",
+          "blockNumber": 64275696,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.OperationRemoved(bytes32)"
+            },
+            {
+              "rawEventId": "4",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.TimelockOperationCanceled(bytes32,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "3",
+                "4"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 2,
+                "rowIds": [
+                  "3",
+                  "4"
+                ],
+                "sourceRawEventIds": [
+                  "3",
+                  "4"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275696",
+                  "block_hash": "0x677e3afb2a445650925fdf2892c21819de0ec8d83bdce86521f391ab659109ad"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -178876,7 +178954,7 @@
       "actors": [
         "local-fork-fixture"
       ],
-      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed for the recorded transaction or internal diamond invocation",
       "evidence": [
         {
           "localFork": true,
@@ -180698,6 +180776,92 @@
           "methodKey": "TimelockFacet.execute",
           "affectedFacet": "TimelockFacet",
           "methodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0xcc72547b",
+          "transactionMethodKey": "TimelockFacet.execute",
+          "transactionMethodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xcc72547b",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0xcc72547b",
+            "callPath": []
+          },
+          "txHash": "0x8a24f365411139ce8fa132f50ec3505ad6014ac7e1f63cf06be6667dfb2f2508",
+          "blockNumber": 64275699,
+          "receipt": {
+            "status": 1,
+            "logCount": 3
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "7",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32)"
+            },
+            {
+              "rawEventId": "8",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "9",
+              "logIndex": 2,
+              "eventKey": "TimelockFacet.CallExecuted(address,uint256,bytes,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 3,
+              "rowIds": [
+                "7",
+                "8",
+                "9"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 3,
+                "rowIds": [
+                  "7",
+                  "8",
+                  "9"
+                ],
+                "sourceRawEventIds": [
+                  "7",
+                  "8",
+                  "9"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275699",
+                  "block_hash": "0x3ec064971ce6baf79276ca5b9309be5f485642e70eea2b938ac53ab3a05c354b"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.execute",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
           "txHash": "0x8a9d77ddc0d09a62880746a151802dff8af28be6bb69669977fd854445138455",
           "blockNumber": 63269588,
           "receipt": {
@@ -181646,6 +181810,100 @@
           "methodKey": "TimelockFacet.execute",
           "affectedFacet": "TimelockFacet",
           "methodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0xcc72547b",
+          "transactionMethodKey": "TimelockFacet.execute",
+          "transactionMethodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xcc72547b",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0xcc72547b",
+            "callPath": []
+          },
+          "txHash": "0xe4bdba772b52c84a03bf864025785f37ffab9c9073eaacac4d3e0bc289b80b35",
+          "blockNumber": 64275705,
+          "receipt": {
+            "status": 1,
+            "logCount": 4
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "18",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.MinDelayUpdated(uint256,uint256)"
+            },
+            {
+              "rawEventId": "19",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32)"
+            },
+            {
+              "rawEventId": "20",
+              "logIndex": 2,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "21",
+              "logIndex": 3,
+              "eventKey": "TimelockFacet.CallExecuted(address,uint256,bytes,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 4,
+              "rowIds": [
+                "18",
+                "19",
+                "20",
+                "21"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 4,
+                "rowIds": [
+                  "18",
+                  "19",
+                  "20",
+                  "21"
+                ],
+                "sourceRawEventIds": [
+                  "18",
+                  "19",
+                  "20",
+                  "21"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275705",
+                  "block_hash": "0xd32bec9759576e2a9e43980302be448cc59946463226e56c89a41fa021ba9ad1"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.execute",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
           "txHash": "0xe71b294352aa250a767ecff9a371fbbcd081c99f4cfc004fcc545e3892d1b80e",
           "blockNumber": 63024125,
           "receipt": {
@@ -181875,6 +182133,100 @@
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.execute",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0xcc72547b",
+          "transactionMethodKey": "TimelockFacet.execute",
+          "transactionMethodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xcc72547b",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0xcc72547b",
+            "callPath": []
+          },
+          "txHash": "0xfbc28b7a4c91901ba72d820f509197d2991dded36a0b9ebf0321c07d38db1f25",
+          "blockNumber": 64275702,
+          "receipt": {
+            "status": 1,
+            "logCount": 4
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "12",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.MinDelayUpdated(uint256,uint256)"
+            },
+            {
+              "rawEventId": "13",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32)"
+            },
+            {
+              "rawEventId": "14",
+              "logIndex": 2,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "15",
+              "logIndex": 3,
+              "eventKey": "TimelockFacet.CallExecuted(address,uint256,bytes,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 4,
+              "rowIds": [
+                "12",
+                "13",
+                "14",
+                "15"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 4,
+                "rowIds": [
+                  "12",
+                  "13",
+                  "14",
+                  "15"
+                ],
+                "sourceRawEventIds": [
+                  "12",
+                  "13",
+                  "14",
+                  "15"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275702",
+                  "block_hash": "0x03a3cd6178be318932c652dc890b6c11cb95331f3cea3e0073fc370ccea128b2"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -181888,7 +182240,7 @@
       "actors": [
         "local-fork-fixture"
       ],
-      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed for the recorded transaction or internal diamond invocation",
       "evidence": [
         {
           "localFork": true,
@@ -182321,6 +182673,84 @@
           "methodKey": "TimelockFacet.schedule",
           "affectedFacet": "TimelockFacet",
           "methodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0xadc710b8",
+          "transactionMethodKey": "TimelockFacet.schedule",
+          "transactionMethodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xadc710b8",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0xadc710b8",
+            "callPath": []
+          },
+          "txHash": "0x117368d72f33bcc3d13ec5e5721858fe213438df245a659149f984f928f08c2c",
+          "blockNumber": 64275697,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "5",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.OperationStored(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "6",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationScheduled(bytes32,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "5",
+                "6"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 2,
+                "rowIds": [
+                  "5",
+                  "6"
+                ],
+                "sourceRawEventIds": [
+                  "5",
+                  "6"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275697",
+                  "block_hash": "0x5c329d3477eea81d366668c359051ab6d6b737e8b7a05fd53fc00a95bfe929cd"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.schedule",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
           "txHash": "0x126c40cd677711a29734ee79df09fd3d2f48ae540a03cee6b6d76f19f2f29166",
           "blockNumber": 63167302,
           "receipt": {
@@ -182455,6 +182885,84 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.schedule",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0xadc710b8",
+          "transactionMethodKey": "TimelockFacet.schedule",
+          "transactionMethodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xadc710b8",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0xadc710b8",
+            "callPath": []
+          },
+          "txHash": "0x1b92ba5d85940838f1c475edaca5c01729bdd6e75dd45a0315da3b188c62a770",
+          "blockNumber": 64275703,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "16",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.OperationStored(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "17",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationScheduled(bytes32,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "16",
+                "17"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 2,
+                "rowIds": [
+                  "16",
+                  "17"
+                ],
+                "sourceRawEventIds": [
+                  "16",
+                  "17"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275703",
+                  "block_hash": "0x9dfed8532ef4d3f45de56350abab34522de85a9cb4271e0fc5f4e7f2ddab2879"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -184591,6 +185099,84 @@
           "methodKey": "TimelockFacet.schedule",
           "affectedFacet": "TimelockFacet",
           "methodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0xadc710b8",
+          "transactionMethodKey": "TimelockFacet.schedule",
+          "transactionMethodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xadc710b8",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0xadc710b8",
+            "callPath": []
+          },
+          "txHash": "0x857b5f611a2a118c48e6b975b17381c87d4aad40b7d156e3d7a63cf7a333d53f",
+          "blockNumber": 64275695,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.OperationStored(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "2",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationScheduled(bytes32,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "1",
+                "2"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 2,
+                "rowIds": [
+                  "1",
+                  "2"
+                ],
+                "sourceRawEventIds": [
+                  "1",
+                  "2"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275695",
+                  "block_hash": "0x1ff52f103b3ad0ed225daa59fffa1127d500b7e0871be74449c1e9cff3245db0"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.schedule",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
           "txHash": "0x899a724b1b7cce31ab932735475d319df6e7e68225e77f45fd2346ec862c25da",
           "blockNumber": 63142048,
           "receipt": {
@@ -185571,6 +186157,84 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-full-contract-integration-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.schedule",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "methodSelector": "0xadc710b8",
+          "transactionMethodKey": "TimelockFacet.schedule",
+          "transactionMethodSignature": "schedule(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xadc710b8",
+          "invocation": {
+            "kind": "transaction",
+            "selector": "0xadc710b8",
+            "callPath": []
+          },
+          "txHash": "0xb23de95559bd2e21968d567d18c332757765929e74bc817cf4bc305315f488bf",
+          "blockNumber": 64275700,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "10",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.OperationStored(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "11",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationScheduled(bytes32,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "10",
+                "11"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 2,
+                "rowIds": [
+                  "10",
+                  "11"
+                ],
+                "sourceRawEventIds": [
+                  "10",
+                  "11"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275700",
+                  "block_hash": "0xe03d4968bd29b5e706ffa0c5b585c256debc6981e16945a10b85288b68d28d9e"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
@@ -187275,6 +187939,214 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "TimelockFacet.updateMinDelay": {
+      "routes": [
+        "POST /v1/governance/commands/execute"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed for the recorded transaction or internal diamond invocation",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.updateMinDelay",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "updateMinDelay(uint256)",
+          "methodSelector": "0x8a99d586",
+          "transactionMethodKey": "TimelockFacet.execute",
+          "transactionMethodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xcc72547b",
+          "invocation": {
+            "kind": "internal-diamond-call",
+            "selector": "0x8a99d586",
+            "callPath": [
+              0,
+              3
+            ]
+          },
+          "txHash": "0xe4bdba772b52c84a03bf864025785f37ffab9c9073eaacac4d3e0bc289b80b35",
+          "blockNumber": 64275705,
+          "receipt": {
+            "status": 1,
+            "logCount": 4
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "18",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.MinDelayUpdated(uint256,uint256)"
+            },
+            {
+              "rawEventId": "19",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32)"
+            },
+            {
+              "rawEventId": "20",
+              "logIndex": 2,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "21",
+              "logIndex": 3,
+              "eventKey": "TimelockFacet.CallExecuted(address,uint256,bytes,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 4,
+              "rowIds": [
+                "18",
+                "19",
+                "20",
+                "21"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 4,
+                "rowIds": [
+                  "18",
+                  "19",
+                  "20",
+                  "21"
+                ],
+                "sourceRawEventIds": [
+                  "18",
+                  "19",
+                  "20",
+                  "21"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275705",
+                  "block_hash": "0xd32bec9759576e2a9e43980302be448cc59946463226e56c89a41fa021ba9ad1"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TimelockFacet.updateMinDelay",
+          "affectedFacet": "TimelockFacet",
+          "methodSignature": "updateMinDelay(uint256)",
+          "methodSelector": "0x8a99d586",
+          "transactionMethodKey": "TimelockFacet.execute",
+          "transactionMethodSignature": "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+          "transactionSelector": "0xcc72547b",
+          "invocation": {
+            "kind": "internal-diamond-call",
+            "selector": "0x8a99d586",
+            "callPath": [
+              0,
+              3
+            ]
+          },
+          "txHash": "0xfbc28b7a4c91901ba72d820f509197d2991dded36a0b9ebf0321c07d38db1f25",
+          "blockNumber": 64275702,
+          "receipt": {
+            "status": 1,
+            "logCount": 4
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "12",
+              "logIndex": 0,
+              "eventKey": "TimelockFacet.MinDelayUpdated(uint256,uint256)"
+            },
+            {
+              "rawEventId": "13",
+              "logIndex": 1,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32)"
+            },
+            {
+              "rawEventId": "14",
+              "logIndex": 2,
+              "eventKey": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"
+            },
+            {
+              "rawEventId": "15",
+              "logIndex": 3,
+              "eventKey": "TimelockFacet.CallExecuted(address,uint256,bytes,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 4,
+              "rowIds": [
+                "12",
+                "13",
+                "14",
+                "15"
+              ]
+            },
+            "projections": [
+              {
+                "table": "timelock_operations",
+                "rowCount": 4,
+                "rowIds": [
+                  "12",
+                  "13",
+                  "14",
+                  "15"
+                ],
+                "sourceRawEventIds": [
+                  "12",
+                  "13",
+                  "14",
+                  "15"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "64275702",
+                  "block_hash": "0x03a3cd6178be318932c652dc890b6c11cb95331f3cea3e0073fc370ccea128b2"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         }

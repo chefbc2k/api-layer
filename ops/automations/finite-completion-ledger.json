@@ -598,7 +598,7 @@
           "StakingFacet.queueTierConfigUpdate",
           "StakingFacet.setDegradedModeConfig",
           "StakingFacet.setEchoScoreBoost",
-          "TimelockFacet.updateMinDelay",
+                    "TimelockFacet.updateMinDelay",
           "TimewaveGiftFacet.batchReleaseTwaveVesting",
           "TimewaveGiftFacet.createUsdcVestingSchedule",
           "TimewaveGiftFacet.releaseTwaveVesting",
@@ -643,17 +643,17 @@
         "inventoryReconciliationRequired": true
       },
       "currentCheckpoint": {
-        "successfulWriteProofCount": 189,
+        "successfulWriteProofCount": 190,
         "fixedWriteMethodDenominator": 260,
-        "reportedRemainingCount": 71,
+        "reportedRemainingCount": 70,
         "reviewedContractOnlyExceptions": [
           "OwnershipFacet.acceptOwnership",
           "EmergencyFacet.executeRecoveryAction"
         ],
-        "ordinaryExactMethodProofsRemaining": 69,
-        "countSourceCommit": "d9d07d54463f6316e8e83822171d27ea132330b2",
-        "countSourceArtifact": "verify-local-fork-indexer-output.json",
-        "countSourceArtifactSha256": "598cf290e5751f9fe5a7991b21cd29d4f9da75d2c0eb74a54820ed356aaa8f56",
+        "ordinaryExactMethodProofsRemaining": 68,
+        "countSourceCommit": "ae3929e",
+        "countSourceArtifact": "output/api05-timelock-nested-proof-2026-11-27.json",
+        "countSourceArtifactSha256": "90d2736649105f0f37d456c4543284d4ccd97c7644aa574ccb7b1070491cd6e8",
         "remainingMethodKeys": [
           "AccessControlFacet.emergencyForceAdd",
           "AccessControlFacet.executeFounderSunset",
@@ -698,7 +698,6 @@
           "StakingFacet.initStakingWithToken",
           "StakingFacet.setEchoScoreBoost",
           "StakingFacet.setStakingPaused",
-          "TimelockFacet.updateMinDelay",
           "TimewaveGiftFacet.batchReleaseTwaveVesting",
           "TimewaveGiftFacet.createUsdcVestingSchedule",
           "TimewaveGiftFacet.releaseTwaveVesting",
@@ -727,7 +726,7 @@
           "VoiceLicenseFacet.updateLicenseTerms",
           "VoiceLicenseFacet.withdrawLicenseRevenue"
         ],
-        "inventoryStatus": "Reconciled the historical cumulative artifact from the source commit against the current generated 260-method write catalog: all 189 report keys exist in the catalog, all 189 are proven working with evidence, and the exact remainder is these 71 keys. The two reviewed contract-only exceptions are included in the remainder; 69 ordinary exact-method proofs remain. Every evidence entry has a successful receipt, PostgreSQL block-journal row, and unchanged idempotent replay. The baseline.openMethodKeys list remains the initial 113/260 snapshot and is not the current remainder."
+        "inventoryStatus": "Reconciled the current cumulative indexer report against API-05 acceptance: 190 methods are accepted out of 260, with 70 exact-method keys remaining below. The cumulative report lists 191 methods because it still classifies AccessControlFacet.emergencyForceAdd as proven despite unresolved canonical post-state disagreement; that key is not accepted. The two reviewed contract-only exceptions remain in the remainder, leaving 68 ordinary exact-method proofs. The baseline.openMethodKeys list remains the initial 113/260 snapshot and is not the current remainder."
       },
       "evidence": [
         {
@@ -2348,6 +2347,37 @@
             "git diff --check passed; the release worktree was clean after commit 7f0d525."
           ],
           "resultLimitation": "API-05 remains accepted at 189/260. The live fork scenario, direct minDelay readbacks, PostgreSQL receipt projection/journal, and idempotent replay have not been run because the existing assurance process continues to hold the shared fork."
+        }
+      ,
+        {
+          "sourceCommit": "ae3929e",
+          "artifact": "output/api05-timelock-nested-proof-2026-11-27.json",
+          "artifactSha256": "90d2736649105f0f37d456c4543284d4ccd97c7644aa574ccb7b1070491cd6e8",
+          "transactionArtifact": ".runtime/local-fork-proofs/api05-timelock-nested-receipts.json",
+          "transactionArtifactSha256": "7e722ccaebd4e54f0632f6faf872a84ae9f386cdfd52ea0536d57d2bd15f93b9",
+          "result": "Accepted TimelockFacet.updateMinDelay through the governance execute route. Two successful nested calls changed minDelay from 172800 to 172801 and restored it to 172800; both readbacks, MinDelayUpdated events, PostgreSQL projection and block-journal rows, and unchanged replay are preserved in the durable proof artifact.",
+          "startingProvenCount": 189,
+          "endingProvenCount": 190,
+          "completedThisRun": 1,
+          "endingOpenCount": 70,
+          "acceptedMethods": [
+            {
+              "methodKey": "TimelockFacet.updateMinDelay",
+              "route": "POST /v1/governance/commands/execute",
+              "transactionHashes": [
+                "0xfbc28b7a4c91901ba72d820f509197d2991dded36a0b9ebf0321c07d38db1f25",
+                "0xe4bdba772b52c84a03bf864025785f37ffab9c9073eaacac4d3e0bc289b80b35"
+              ]
+            }
+          ],
+          "checks": [
+            "The mounted route submitted two TimelockFacet.execute transactions. Call-tracer evidence identifies internal TimelockFacet.updateMinDelay selector 0x8a99d586 at callPath [0,3] in both receipts; each status was 1.",
+            "The contract integration test read original minDelay 172800, changed value 172801, and restored value 172800; both receipts emitted MinDelayUpdated(uint256,uint256).",
+            "The exact-receipt indexer run included 8 transaction hashes and 10 write invocations. It validated all declared events and projections with no failures; PostgreSQL stored canonical raw events, timelock_operations rows, and indexer_blocks journal entries for both receipts.",
+            "PostgreSQL ingestion replay was idempotent: table totals and receipt evidence were unchanged. The callTracer reported supported on local fork chain 84532.",
+            "The cumulative indexer artifact now lists 191 keys; AccessControlFacet.emergencyForceAdd remains excluded from API-05 acceptance because its canonical state enumeration disagreement is unresolved."
+          ],
+          "resultLimitation": "API-05 remains in_progress at 190/260. Sixty-eight ordinary exact-method proofs and two reviewed contract-only exceptions remain; hosted/default delivery and the other API release requirements are still open."
         }
       ],
       "deliveredCommit": null,
